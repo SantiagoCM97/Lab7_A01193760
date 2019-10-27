@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>First Server</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="posts">
+            <h1>All blog posts</h1>
+            <ul id="blogPosts">
+
+            </ul>
+        </div>
+        <div class="edit">
+            <form id="new-post">
+                <h2>New post</h2>
+                <fieldset>
+                    Title: <input type="text" id="postTitle"> 
+                    Content: <textarea id="postContent"> </textarea>
+                    Author: <input type="text" id="postAuthor">
+                    Date: <input type="text" id="postDate">
+                    <button type="submit" id="postButton">Submit</button>
+                </fieldset>
+            </form>
+            <form id="update-post">
+                <h2>Update Post</h2>
+                <fieldset>
+                    Id: <input type="text" id="updateId"> <br>
+                    Title: <input type="text" id="updateTitle"> 
+                    Content: <textarea id="updateContent"> </textarea> <br>
+                    Author: <input type="text" id="updateAuthor">
+                    Date: <input type="text" id="updateDate">
+                    <button type="submit" id="updateButton">Submit</button>
+                </fieldset>
+            </form>
+            <form id="deleteForm">
+                <h2>Delete post</h2>
+                <fieldset>
+                    Id: <input type="text" id="deleteId">
+                    <button type="submit" id="updateButton">Submit</button>
+                </fieldset>
+            </form>
+        </div>
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.js"
+      integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+      crossorigin="anonymous"></script>
+    <script src="index.js"></script>
+  </body>
+</html>
