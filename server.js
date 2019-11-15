@@ -1,15 +1,20 @@
 
 let express = require("express");
 let morgan = require("morgan");
+let mongoose = require("mongoose");
 let bodyParser = require("body-parser");
 const uuid = require('uuid/v4');
 
+let { PostList } = require('./model.js');
+const { DATABASE_URL, PORT } = require( './config' );
+
 let app = express();
-
 let jsonParser = bodyParser.json();
+mongoose.Promise = global.Promise;
 
-app.use(express.static('public'));
-app.use(morgan("combined"));
+app.use( express.static( "public" ) );
+
+app.use( morgan( "combined" ) );
 
 let posts = [{
 	id: uuid(),
