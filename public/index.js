@@ -3,9 +3,9 @@ function getBlogs() {
 	fetch("https://immense-mesa-55206.herokuapp.com/blog-posts")
 	.then(response => {
 		if(response.ok) {
-			return response.json();
+			return response.jsons
 		} 
-		throw new Error(res.statusText);
+		throw new Error(response.statusText);
 	})
 	.then(responseJSON => {
 		for(let i = 0; i < responseJSON.length; i++) {
