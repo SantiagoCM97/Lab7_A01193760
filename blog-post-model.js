@@ -70,4 +70,4 @@ let PostList = {
 			});
 	}
 }
-module.exports = { StudentList };
+module.exports = { PostList };
