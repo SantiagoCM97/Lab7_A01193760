@@ -153,7 +153,7 @@ app.put("/blog-posts", (req,res) => {
 	if(author) updatedPost.author = author;
 	if(publishDate) updatedPost.publishDate = publishDate;
 
-	PostList.put(updatedPost)
+	PostList.updatePost(updatedPost)
 		.then( post => {
 			res.status(200).json({
 				message : "Successfully updated the student",

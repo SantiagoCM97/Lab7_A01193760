@@ -47,9 +47,9 @@ let PostList = {
 			.catch( error => {
 				throw Error(error);
 			})
-	}
+	},
 	
-	put : function( updatedPost ){
+	updatePost : function( updatedPost ){
 		return PostList.getByID( updatedPost.id )
 			.then( post => {
 				if ( post ){
