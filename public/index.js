@@ -1,6 +1,6 @@
 function getBlogs() {
 	$("#blogPosts").html("");
-	fetch("https://immense-mesa-55206.herokuapp.com/blog-posts")
+	fetch("/blog-posts")
 	.then(response => {
 		if(response.ok) {
 			return response.jsons
@@ -39,7 +39,7 @@ function postBlog(title, content, author, date) {
 		body: JSON.stringify(data)
 	}
 
-	fetch("http://localhost:8080/blog-posts", settings)
+	fetch("/blog-posts", settings)
 	.then(response => {
 		if(response.ok) {
 			return response.json();
@@ -74,7 +74,7 @@ function updateBlog(id, title, content, author, date) {
 		},
 		body: JSON.stringify(body)
 	}
-	fetch("http://localhost8080/blog-posts?id=" + id, settings)
+	fetch("/blog-posts?id=" + id, settings)
 	.then(response => {
 		if(response.ok) {
 			return response.json();
@@ -99,7 +99,7 @@ function deleteBlog(id) {
 	let settings = {
 		method : "delete"
 	}
-	fetch("/api/blog-posts?id=" + id, settings)
+	fetch("/blog-posts?id=" + id, settings)
 	.then(response => {
 		if(response.ok){
 			return response.json();
