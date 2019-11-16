@@ -1,6 +1,6 @@
 function getBlogs() {
 	$("#blogPosts").html("");
-	fetch("http://localhost:8080/blog-posts")
+	fetch("https://immense-mesa-55206.herokuapp.com/blog-posts")
 	.then(response => {
 		if(response.ok) {
 			return response.json();
@@ -20,7 +20,7 @@ function getBlogs() {
 		}
 	})
 	.catch(error => {
-		console.log(err);
+		console.log(error);
 	});
 }
 
