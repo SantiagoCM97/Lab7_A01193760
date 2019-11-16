@@ -70,3 +70,4 @@ let PostList = {
 			});
 	}
 }
+module.exports = { StudentList };
