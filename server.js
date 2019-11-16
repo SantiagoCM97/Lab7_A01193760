@@ -5,7 +5,7 @@ let mongoose = require("mongoose");
 let bodyParser = require("body-parser");
 const uuid = require('uuid/v4');
 
-let { PostList } = require('./model.js');
+let { PostList } = require('./blog-post-model.js');
 const { DATABASE_URL, PORT } = require( './config' );
 
 let app = express();
@@ -40,20 +40,50 @@ let posts = [{
 ];
 
 app.get("/blog-posts", (req, res, next) => {
-	return res.status(200).json(posts);
+	PostList.get()
+	.then( posts => {
+			return res.status( 200 ).json( posts );
+		})
+		.catch( error => {
+			res.statusMessage = "Something went wrong with the DB. Try again later.";
+			return res.status( 500 ).json({
+				status : 500,
+				message : "Something went wrong with the DB. Try again later."
+			})
+		});
 });
 
 app.get("/blogpost", (req, res, next) => {
-	console.log(req.query.author);
-	if (!req.query.author) {
+	let author = req.query.author
+	if (!author) {
 		return res.status(406).json({message : "Missing author in params",status : 406});
 	}
-	for (var i = posts.length - 1; i >= 0; i--) {
-		if(posts[i].author === req.query.author) {
-			return res.status(202).json(posts[i]);
-		}
-	}
-	return res.status(404).json({message: "not found author in list"});
+
+	PostList.getByAuthor(author)
+		.then(post => {
+			if ( post ){
+				return res.status( 202 ).json({
+					message : "Post found in the list",
+					status : 202,
+					post : post
+				});
+			}
+			else{
+				res.statusMessage = "Post not found in the list.";
+
+				return res.status( 404 ).json({
+					message : "Post not found in the list.",
+					status : 404
+				});
+			}
+		})
+		.catch( err => {
+			res.statusMessage = "Something went wrong with the DB. Try again later.";
+			return res.status( 500 ).json({
+				status : 500,
+				message : "Something went wrong with the DB. Try again later."
+			})
+		})
 });
 
 app.post("/blog-posts", jsonParser, (req,res) => {
@@ -63,41 +93,45 @@ app.post("/blog-posts", jsonParser, (req,res) => {
 	let author = req.body.author;
 	let publishDate = req.body.publishDate;
 
-	console.log(req.body);
-	if ( !title || !content || !author || !publishDate ){
-		res.statusMessage = "Missing field in body!";
-		return res.status(406).json({
-			message : "Missing field in body!",
-			status : 406
-		});
+	let newPost = {
+		id,
+		title,
+		content,
+		author,
+		publishDate
 	}
-	posts.push({
-		id: id,
-		title: title,
-		content: content,
-		author: author,
-		publishDate: publishDate
-	});
-	return res.status(201).json(posts);
+
+	PostList.post(newPost)
+		.then( post => {
+			return res.status( 201 ).json({
+				message : "Post added to the list",
+				status : 201,
+				post : post
+			});
+		})
+		.catch( error => {
+			res.statusMessage = "Something went wrong with the DB. Try again later.";
+			return res.status( 500 ).json({
+				status : 500,
+				message : "Something went wrong with the DB. Try again later."
+			});
+		});
 });
 
 app.delete("/blog-post/:id", (req, res) => {
     // Does the id exist?
     let deleteId = req.params.id;
-
-    // Delete the post with the given id
-    let length = posts.length;
-    posts = posts.filter(p => p.id != deleteId);
-
-    if(pLength == posts.length) {
-    	res.statusMessage = "Could not find id in posts";
-    	return res.status(404).json({message: res.statusMessage});
-    }
-
-    return res.status(200).json({message: "Deletion was successful"});
+    PostList.delete(deleteID)
+    	.then(() => {
+    		return res.status(200).json({message: "Deletion was successful"});
+    	})
+    	.catch(error => {
+    		res.statusMessage = error;
+    		return res.status(404).json({message: res.statusMessage});
+    	})
 });
 
-app.put("/blog-posts/:id", (req,res) => {
+app.put("/blog-posts", (req,res) => {
 	let paramId = req.params.id;
 	let id = req.body.id;
 	let title = req.body.title;
@@ -111,24 +145,81 @@ app.put("/blog-posts/:id", (req,res) => {
 			status : 406
 		});
 	}
-	if (id !== paramId) {
-		return res.status(404).json({
-			message : "id in body not match with params",
-			status : 406
+
+	let updatedPost = {id : id};
+
+	if(title) updatedPost.title = title;
+	if(content) updatedPost.content = content;
+	if(author) updatedPost.author = author;
+	if(publishDate) updatedPost.publishDate = publishDate;
+
+	PostList.put(updatedPost)
+		.then( post => {
+			res.status(200).json({
+				message : "Successfully updated the student",
+				status : 200,
+				post : post
+			});
+		})
+		.catch( err => {
+			if( err.message == 404 ) {
+				return res.status(404).json({
+					message: "Post not found in the list",
+					status: 404
+				});
+			}
+			else{
+				res.statusMessage = "Something went wrong with the DB. Try again later.";
+				return res.status( 500 ).json({
+					status : 500,
+					message : "Something went wrong with the DB. Try again later."
+				})
+			}
 		});
-	}
-	posts.foreach(function(post) {
-		if (post.id === id) {
-			if (title) post.title = title;
-			if (content) post.content = content;
-			if (author) post.author = author;
-			if (publishDate) post.publishDate = publishDate;
-			return res.status(200).json({message : "succesful update"});
-		}
+});
+
+let server;
+
+function runServer(port, databaseUrl){
+	return new Promise( (resolve, reject ) => {
+		mongoose.connect(databaseUrl, response => {
+			if ( response ){
+				return reject(response);
+			}
+			else{
+				server = app.listen(port, () => {
+					console.log( "App is running on port " + port );
+					resolve();
+				})
+				.on( 'error', err => {
+					mongoose.disconnect();
+					return reject(err);
+				})
+			}
+		});
 	});
-});
+}
 
+function closeServer(){
+	return mongoose.disconnect()
+		.then(() => {
+			return new Promise((resolve, reject) => {
+				console.log('Closing the server');
+				server.close( err => {
+					if (err){
+						return reject(err);
+					}
+					else{
+						resolve();
+					}
+				});
+			});
+		});
+}
 
-app.listen("8080", () => {
-	console.log("App is running on port 8080");
-});
+runServer( PORT, DATABASE_URL )
+	.catch( err => {
+		console.log( err );
+	});
+
+module.exports = { app, runServer, closeServer };

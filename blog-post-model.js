@@ -43,7 +43,7 @@ let PostList = {
 				});
 	},
 	delete : function( id ) {
-		return Tank.deleteOne({ id: id })
+		return Post.deleteOne({ id: id })
 			.catch( error => {
 				throw Error(error);
 			})
